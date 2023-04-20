@@ -45,17 +45,21 @@ def mainMenu():
         selection_menu(mainMenuOptions)
         if main_user_input == "1":
             StartBot()
+            i = False
         elif main_user_input == "2":
             configBotMenu()
+            i = False
         elif main_user_input == "3":
             RestartBot()
+            i = False
         elif main_user_input == "4":
             ShutdownBot()
+            i = False
         elif main_user_input == "5":
             exit_application()
             break
         else:
-            while True:
+            while i:
                 database = db_management.programFile_db
                 selection_menu_incorrect(mainMenuOptions)
                 if main_user_input == "1":
