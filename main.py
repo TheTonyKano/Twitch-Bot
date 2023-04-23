@@ -1,12 +1,25 @@
 #This bot was created by TheTonyKano for the purpose of automation.
 import requests
 import db_management
-
+import sys
+from TheTonyKanoBot import TwitchBot
 #Global Variables
 mainMenuOptions = ["Start Bot", "Configure Bot", "Restart Bot","Shutdown Bot", "Exit"]
-configBotMenuOptions = ["Configure OAuth", "Set Twitch User ID", "Test Bot Connection", "Go Back"]
-configOAuthMenuOptions = ["Set Client ID", "Set Client Secret", "Go Back"]
+configBotMenuOptions = ["Set Broadcaster's Channel","Set Broadcaster ID", 'Set Bot Username',"Configure OAuth", "Set API Address (Do after setting Broadcaster's ID)", "Test Bot Connection", "Go Back"]
+configOAuthMenuOptions = ["Set Client ID", "Set Client Secret","Post OAuth", "Go Back"]
 APIkeyValue = "API_Address"
+broadcaster_id = "broadcaster_id"
+# Set up the Twitch API endpoint URL
+url = 'https://id.twitch.tv/oauth2/token'
+# Set up the Client ID and Client Secret as variables
+clientIDKey = "client_id"
+clientSecretKey = "client_secret"
+botUsernameKey = 'bot_username'
+channelKey = 'channel'
+tokenKey = 'access_token'
+tokenTypeKey = 'token_type'
+expiresInKey = 'expires_in'
+botUserID = 'bot_user_id'
 
 #Functions
 def populate_menu(option):
@@ -16,7 +29,7 @@ def populate_menu(option):
     print("\n")
 
 def selection_menu(menuList):
-    print("\n" * 100)
+    #print("\n" * 100)
     global main_user_input
     print("---------------------------------------------------------")
     print("Please choose from the selection below.")
@@ -26,7 +39,7 @@ def selection_menu(menuList):
     return main_user_input
 
 def selection_menu_incorrect(menuList):
-    print("\n" * 100)
+    #print("\n" * 100)
     global main_user_input
     print("---------------------------------------------------------")
     print("Incorrect selection, please try again")
@@ -37,133 +50,219 @@ def selection_menu_incorrect(menuList):
     return main_user_input
 
 def mainMenu():
-    print("\n" * 100)
+    #print("\n" * 100)
     i = True
     while i:
-        global database
-        database = db_management.programFile_db
-        selection_menu(mainMenuOptions)
+        selection_menu_incorrect(mainMenuOptions)
         if main_user_input == "1":
+            print("Bot Started!")
             StartBot()
-            i = False
+            mainMenu()
         elif main_user_input == "2":
             configBotMenu()
-            i = False
         elif main_user_input == "3":
-            RestartBot()
-            i = False
+            try:
+                TwitchBot.stop_bot
+            except Exception as e:
+                mainMenu()
+            print("Bot Stopped!")
+            StartBot()
+            print("Bot Started!")
+            mainMenu()
         elif main_user_input == "4":
-            ShutdownBot()
-            i = False
+            try:
+                TwitchBot.stop_bot
+            except Exception as e:
+                mainMenu()
+            print("Bot Stopped!")
+            mainMenu()
         elif main_user_input == "5":
             exit_application()
-            break
         else:
             while i:
-                database = db_management.programFile_db
                 selection_menu_incorrect(mainMenuOptions)
                 if main_user_input == "1":
+                    print("Bot Started!")
                     StartBot()
+                    mainMenu()
                 elif main_user_input == "2":
                     configBotMenu()
                 elif main_user_input == "3":
-                    RestartBot()
+                    try:
+                        TwitchBot.stop_bot
+                        print("Bot Stopped!")
+                    except Exception as e:
+                        mainMenu()
+                    StartBot()
+                    mainMenu()
                 elif main_user_input == "4":
-                    ShutdownBot()
+                    try:
+                        TwitchBot.stop_bot
+                        print("Bot Stopped!")
+                    except Exception as e:
+                        mainMenu()
+                    mainMenu()
                 elif main_user_input == "5":
                     exit_application()
-                    break
                 else:
                     continue
+def loadDB():
+    return db_management.load_config()
+
 def StartBot():
-    exit_application()
+    currentDB = loadDB()
+    username = currentDB[channelKey]
+    client_id = currentDB[clientIDKey]
+    try:
+        token = currentDB[tokenKey]
+    except Exception as e:
+        print("Configuration incorrect: Check Client ID and Secret. OAuthToken failed to get.")
+        mainMenu()
+    channel = currentDB[channelKey]
+    bot_user_id = currentDB[botUserID]
+    bot = TwitchBot(username, client_id, token, channel, bot_user_id)
+    try:
+        bot.start()
+        print("Bot Started!")
+    except Exception as e:
+        mainMenu()
 
-def RestartBot():
-    exit_application()
-
-def ShutdownBot():
-    exit_application()
-
-def  configBotMenu():
+def configBotMenu():
     selection_menu(configBotMenuOptions)
-    if main_user_input == "1": #Configure OAuth
+    if main_user_input == "1": #Configure Broadcaster's Channel
+        question = "Enter your Broadcaster's Channel name: "
+        setKeyValueToDB(question, channelKey, 'configBotMenu')
+    elif main_user_input == "2": #Configure Broadcaster ID
+        question = "Enter your Broadcaster ID: "
+        setKeyValueToDB(question, broadcaster_id, 'configBotMenu')
+    elif main_user_input == "3": #Configure Bot's Username
+        question = "Enter your Bot's Username: "
+        setKeyValueToDB(question, botUsernameKey, 'configBotMenu')
+    elif main_user_input == "4": #Configure OAuth
         OAuthMenu()
-    elif main_user_input == "2": #Set Twitch User ID
-        ConfigTwitchUserID()
-    elif main_user_input == "3": #Test Bot Connection
+    elif main_user_input == "5": #Sets the API address
+        ConfigAPIAddress()
+    elif main_user_input == "6": #Test Bot Connection
         Test_API_Connection()
-    elif main_user_input == "4": #Go Back
+    elif main_user_input == "7": #Go Back
         mainMenu()
     else:
         while True:
             selection_menu_incorrect(configBotMenuOptions)
-            if main_user_input == "1": #Configure OAuth
+            if main_user_input == "1": #Configure Broadcaster's Channel
+                question = "Enter your Broadcaster's Channel name: "
+                setKeyValueToDB(question, channelKey, "configBotMenu")
+            elif main_user_input == "2": #Configure Broadcaster ID
+                question = "Enter your Broadcaster ID: "
+                setKeyValueToDB(question, broadcaster_id, 'configBotMenu')
+            elif main_user_input == "3": #Configure Bot's Username
+                question = "Enter your Bot's Username: "
+                setKeyValueToDB(question, botUsernameKey, 'configBotMenu')
+            elif main_user_input == "4": #Configure OAuth
                 OAuthMenu()
-            elif main_user_input == "2": #Set Twitch User ID
-                ConfigTwitchUserID()
-            elif main_user_input == "3": #Test Bot Connection
+            elif main_user_input == "5": #Sets the API address
+                ConfigAPIAddress()
+            elif main_user_input == "6": #Test Bot Connection
                 Test_API_Connection()
-            elif main_user_input == "4": #Go Back
+            elif main_user_input == "7": #Go Back
                 mainMenu()
             else:
                 continue
 
-def ConfigTwitchUserID():
-    print("Current User ID: " + str(database))
-    UserID = input("Enter Twitch User ID: ")
+
+def ConfigAPIAddress():
+    database = loadDB()
+    UserID = database[broadcaster_id]
     db_management.apiAddress_to_db(APIkeyValue, UserID)
-
-def OAuthMenu():
-    selection_menu(configBotMenuOptions)
-    if main_user_input == "1": #Set the Client ID
-        SetClientID()
-    elif main_user_input == "2": #Set the Client Secret
-        SetClientSecret()
-    elif main_user_input == "3": #Post Client ID and Client Secret
-        PostOAuth()
-    elif main_user_input == "4": #Go Back
-        mainMenu()
-    else:
-        while True:
-            selection_menu_incorrect(configBotMenuOptions)
-            if main_user_input == "1": #Set the Client ID
-                SetClientID()
-            elif main_user_input == "2": #Set the Client Secret
-                SetClientSecret()
-            elif main_user_input == "3": #Post Client ID and Client Secret
-                PostOAuth()
-            elif main_user_input == "4": #Go Back
-                mainMenu()
-            else:
-                continue
+    configBotMenu()
 
 def Test_API_Connection():
+    database = loadDB()
     status = Test_API_Address(database[APIkeyValue])
     print(status)
-    
-def SetClientID():
-    global clientIDKey
-    clientIDKey = "Client ID"
-    #Send the Key/Value pair to the DB for storage.
-    clientID = input("What is your Client ID? ")
-    db_management.oauth_to_db("Client ID", clientID)
-
-def SetClientSecret():
-    global clientSecretKey
-    clientSecretKey = "Client Secret"
-    #Send the Key/Value pair to the DB for storage.
-    clientSecret = input("What is your Client Secret? ")
-    db_management.oauth_to_db("Client Secret", clientSecret)
-
-def PostOAuth():
-    database = db_management.load_config()
-    requests.post("https://id.twitch.tv/oath2/token", '&client_id=' + database[clientIDKey] + "&client_secret=" + database[clientSecretKey])
+    configBotMenu()
 
 def Test_API_Address(addressRequest):
     status = requests.get(addressRequest)
-    return status.status_code
+    print(status.status_code)
+    configBotMenu()
+
+
+def OAuthMenu():
+    selection_menu(configOAuthMenuOptions)
+    if main_user_input == "1": #Set the Client ID
+        question = "Enter your Client ID: "
+        setKeyValueToDB(question, clientIDKey, 'OAuthMenu')
+    elif main_user_input == "2": #Set the Client Secret
+        question = "Enter your Client Secret: "
+        setKeyValueToDB(question, clientSecretKey, 'OAuthMenu')
+    elif main_user_input == "3": #Post Client ID and Client Secret
+        PostOAuth()
+    elif main_user_input == "4": #Go Back
+        configBotMenu()
+    else:
+        while True:
+            selection_menu_incorrect(configOAuthMenuOptions)
+            if main_user_input == "1": #Set the Client ID
+                question = "Enter your Client ID: "
+                setKeyValueToDB(question, clientIDKey, 'OAuthMenu')
+            elif main_user_input == "2": #Set the Client Secret
+                question = "Enter your Client ID: "
+                setKeyValueToDB(question, clientSecretKey, 'OAuthMenu')
+            elif main_user_input == "3": #Post Client ID and Client Secret
+                PostOAuth()
+            elif main_user_input == "4": #Go Back
+                configBotMenu()
+            else:
+                continue
+
+def setKeyValueToDB(question, key, lastMenu):
+    value = input(question)
+    db_management.simplekeyValue_to_db(key, value)
+    if lastMenu == 'mainMenu':
+        mainMenu()
+    elif lastMenu =='configBotMenu':
+        configBotMenu()
+    elif lastMenu == 'OAuthMenu':
+        OAuthMenu()
+    else:
+        mainMenu()
+
+def assignToken():
+    database = db_management.load_config()
+    jsonData = {
+    clientIDKey: database[clientIDKey],
+    clientSecretKey: database[clientSecretKey],
+    'grant_type': 'client_credentials'
+    }
+    #print(str("https://id.twitch.tv/oath2/token" + '&client_id=' + database[clientIDKey] + "&client_secret=" + database[clientSecretKey] + "&grant_type=client_credentials"))
+    response = requests.post(url, data=jsonData)
+    access_token = response.json()[tokenKey]
+    return access_token
+
+def PostOAuth():
+    database = db_management.load_config()
+    jsonData = {
+    clientIDKey: database[clientIDKey],
+    clientSecretKey: database[clientSecretKey],
+    'grant_type': 'client_credentials'
+    }
+    #print(str("https://id.twitch.tv/oath2/token" + '&client_id=' + database[clientIDKey] + "&client_secret=" + database[clientSecretKey] + "&grant_type=client_credentials"))
+    response = requests.post(url, data=jsonData)
+    access_token = response.json()[tokenKey]
+    expires_in = response.json()[expiresInKey]
+    token_type = response.json()[tokenTypeKey]
+    print("Your access token is: " + access_token)
+    db_management.simplekeyValue_to_db(tokenKey, access_token)
+    print("Your access token expires in: " + str(expires_in))
+    db_management.simplekeyValue_to_db(expiresInKey, expires_in)
+    print("Your token type is: " + token_type)
+    db_management.simplekeyValue_to_db(tokenTypeKey, token_type)
+    OAuthMenu()
 
 def exit_application():
     print("End of Script")
+    sys.exit()
 
 mainMenu()
+

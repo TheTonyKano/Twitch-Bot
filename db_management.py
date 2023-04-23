@@ -5,16 +5,15 @@ twitchAPI_BeginningAddressTemplate = "https://api.twitch.tv/helix/"
 channels = "channels"
 schedule = "schedule"
 broadcaster = "?broadcaster_id="
+defaultJsonFormat = {'oauth_token' : "", "API_Address": "", "broadcaster_id" : "", "client_id": '' , 'client_secret':""}
 
 
 # Functions
 def apiAddress_to_db(keyValue, API_ID): 
-        print(twitchAPI_BeginningAddressTemplate + channels + broadcaster + API_ID)
         programFile_db[keyValue] = twitchAPI_BeginningAddressTemplate + channels + broadcaster + API_ID
         output_db_to_file(programFile_db)
 
-def oauth_to_db(keyValue, value): 
-        print("Your " + keyValue + " is: " + value + ".")
+def simplekeyValue_to_db(keyValue, value): 
         programFile_db[keyValue] = value
         output_db_to_file(programFile_db)
 
@@ -31,9 +30,8 @@ def check_db_file(): # Retrieve Dictionary from JSON to Memory
         if file_path.exists():
             break
         else:
-            blank_dict = {} #Makes new DB if one does not exist
             with open('config.json', 'w') as create_file:
-                json.dump(blank_dict, create_file)
+                json.dump(defaultJsonFormat, create_file)
         load_config()
         break
 
