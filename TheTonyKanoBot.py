@@ -2,6 +2,7 @@ import irc.bot
 
 class TwitchBot(irc.bot.SingleServerIRCBot):
     def __init__(self, username, client_id, token, channel, bot_user_id):
+        self.username = username
         self.client_id = client_id
         self.token = token
         self.channel = "#" + channel

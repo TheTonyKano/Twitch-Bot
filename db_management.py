@@ -5,7 +5,7 @@ twitchAPI_BeginningAddressTemplate = "https://api.twitch.tv/helix/"
 channels = "channels"
 schedule = "schedule"
 broadcaster = "?broadcaster_id="
-defaultJsonFormat = {'oauth_token' : "", "API_Address": "", "broadcaster_id" : "", "client_id": '' , 'client_secret':""}
+defaultJsonFormat = {'channel' : "", 'channel_ID' : "", 'channel_client_id' : "", 'channel_client_secret' : "", 'bot_channel' : "", 'bot_channel_ID' : "", 'bot_channel_client_id' : "", 'bot_channel_client_secret' : "", 'access_Token' : "", 'token_type' : "", 'expires_in' : ""}
 
 
 # Functions

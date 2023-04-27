@@ -1,25 +1,31 @@
 #This bot was created by TheTonyKano for the purpose of automation.
 import requests
-import db_management
 import sys
 from TheTonyKanoBot import TwitchBot
+import account_configuration
+#import subprocess
 #Global Variables
 mainMenuOptions = ["Start Bot", "Configure Bot", "Restart Bot","Shutdown Bot", "Exit"]
-configBotMenuOptions = ["Set Broadcaster's Channel","Set Broadcaster ID", 'Set Bot Username',"Configure OAuth", "Set API Address (Do after setting Broadcaster's ID)", "Test Bot Connection", "Go Back"]
+configBotMenuOptions = ["Set Broadcaster's Channel","Set Broadcaster ID","Set Broadcaster Client ID", "Set Broadcaster Client Secret", "Set Bot's Channel","Set Bot ID","Set Bot Client ID", "Set Bot Client Secret","Test OAuth Connection", "Set API Address (Do after setting Broadcaster's ID)", "Test Bot Connection", "Go Back"]
 configOAuthMenuOptions = ["Set Client ID", "Set Client Secret","Post OAuth", "Go Back"]
 APIkeyValue = "API_Address"
 broadcaster_id = "broadcaster_id"
 # Set up the Twitch API endpoint URL
 url = 'https://id.twitch.tv/oauth2/token'
 # Set up the Client ID and Client Secret as variables
-clientIDKey = "client_id"
-clientSecretKey = "client_secret"
-botUsernameKey = 'bot_username'
-channelKey = 'channel'
-tokenKey = 'access_token'
-tokenTypeKey = 'token_type'
-expiresInKey = 'expires_in'
-botUserID = 'bot_user_id'
+channel = 'channel'
+channel_ID = 'channel_ID'
+channel_client_id = 'channel_client_id'
+channel_client_secret = 'channel_client_secret'
+bot_channel = 'bot_channel'
+bot_channel_ID = 'bot_channel_ID'
+bot_channel_client_id = 'bot_channel_client_id'
+bot_channel_client_secret = 'bot_channel_client_secret'
+access_Token = 'access_Token'
+token_type = 'token_type'
+expires_in = 'expires_in'
+
+#process = subprocess.Popen("StartBot.py")
 
 #Functions
 def populate_menu(option):
@@ -55,8 +61,9 @@ def mainMenu():
     while i:
         selection_menu_incorrect(mainMenuOptions)
         if main_user_input == "1":
-            print("Bot Started!")
             StartBot()
+            #process = subprocess.Popen("StartBot.py")
+            print("Bot Started!")
             mainMenu()
         elif main_user_input == "2":
             configBotMenu()
@@ -106,21 +113,20 @@ def mainMenu():
                     exit_application()
                 else:
                     continue
-def loadDB():
-    return db_management.load_config()
 
 def StartBot():
-    currentDB = loadDB()
-    username = currentDB[channelKey]
-    client_id = currentDB[clientIDKey]
+    currentDB = account_configuration.load_config()
+    username = currentDB[channel]
+    client_id = currentDB[bot_channel_client_id]
     try:
-        token = currentDB[tokenKey]
+        token = currentDB[access_Token]
     except Exception as e:
         print("Configuration incorrect: Check Client ID and Secret. OAuthToken failed to get.")
+        token = ""
         mainMenu()
-    channel = currentDB[channelKey]
-    bot_user_id = currentDB[botUserID]
-    bot = TwitchBot(username, client_id, token, channel, bot_user_id)
+    Botchannel = currentDB[channel]
+    bot_user_id = currentDB[bot_channel_ID]
+    bot = TwitchBot(username, client_id, token, Botchannel, bot_user_id)
     try:
         bot.start()
         print("Bot Started!")
@@ -131,53 +137,83 @@ def configBotMenu():
     selection_menu(configBotMenuOptions)
     if main_user_input == "1": #Configure Broadcaster's Channel
         question = "Enter your Broadcaster's Channel name: "
-        setKeyValueToDB(question, channelKey, 'configBotMenu')
+        setKeyValueToDB(question, channel, "configBotMenu")
     elif main_user_input == "2": #Configure Broadcaster ID
         question = "Enter your Broadcaster ID: "
         setKeyValueToDB(question, broadcaster_id, 'configBotMenu')
-    elif main_user_input == "3": #Configure Bot's Username
-        question = "Enter your Bot's Username: "
-        setKeyValueToDB(question, botUsernameKey, 'configBotMenu')
-    elif main_user_input == "4": #Configure OAuth
-        OAuthMenu()
-    elif main_user_input == "5": #Sets the API address
+    elif main_user_input == "3": #Configure Broadcaster's Client ID 
+        question = "Enter your Broadcaster's Client ID: "
+        setKeyValueToDB(question, bot_channel, 'configBotMenu')
+    elif main_user_input == "4": #Configure Broadcaster's Client Secret
+        question = "Enter your Broadcaster's Client Secret: "
+        setKeyValueToDB(question, channel, "configBotMenu")
+    elif main_user_input == "5": #Configure Bot's Channel
+        question = "Enter your Bot's Channel name: "
+        setKeyValueToDB(question, channel, "configBotMenu")
+    elif main_user_input == "6": #Configure Bot's ID
+        question = "Enter your Bot's ID: "
+        setKeyValueToDB(question, channel, "configBotMenu")
+    elif main_user_input == "7": #Configure Bot's Client ID
+        question = "Enter your Bot's Client ID: "
+        setKeyValueToDB(question, broadcaster_id, 'configBotMenu')
+    elif main_user_input == "8": #Configure Bot's Client Secret
+        question = "Enter your Bots's Client Secret: "
+        setKeyValueToDB(question, bot_channel, 'configBotMenu')
+    elif main_user_input == "9": #Configure OAuth
+        PostOAuth()
+    elif main_user_input == "10": #Sets the API address
         ConfigAPIAddress()
-    elif main_user_input == "6": #Test Bot Connection
+    elif main_user_input == "11": #Test Bot Connection
         Test_API_Connection()
-    elif main_user_input == "7": #Go Back
+    elif main_user_input == "12": #Go Back
         mainMenu()
     else:
         while True:
             selection_menu_incorrect(configBotMenuOptions)
             if main_user_input == "1": #Configure Broadcaster's Channel
                 question = "Enter your Broadcaster's Channel name: "
-                setKeyValueToDB(question, channelKey, "configBotMenu")
+                setKeyValueToDB(question, channel, "configBotMenu")
             elif main_user_input == "2": #Configure Broadcaster ID
                 question = "Enter your Broadcaster ID: "
                 setKeyValueToDB(question, broadcaster_id, 'configBotMenu')
-            elif main_user_input == "3": #Configure Bot's Username
-                question = "Enter your Bot's Username: "
-                setKeyValueToDB(question, botUsernameKey, 'configBotMenu')
-            elif main_user_input == "4": #Configure OAuth
-                OAuthMenu()
-            elif main_user_input == "5": #Sets the API address
+            elif main_user_input == "3": #Configure Broadcaster's Client ID 
+                question = "Enter your Broadcaster's Client ID: "
+                setKeyValueToDB(question, bot_channel, 'configBotMenu')
+            elif main_user_input == "4": #Configure Broadcaster's Client Secret
+                question = "Enter your Broadcaster's Client Secret: "
+                setKeyValueToDB(question, channel, "configBotMenu")
+            elif main_user_input == "5": #Configure Bot's Channel
+                question = "Enter your Bot's Channel name: "
+                setKeyValueToDB(question, channel, "configBotMenu")
+            elif main_user_input == "6": #Configure Bot's ID
+                question = "Enter your Bot's ID: "
+                setKeyValueToDB(question, channel, "configBotMenu")
+            elif main_user_input == "7": #Configure Bot's Client ID
+                question = "Enter your Bot's Client ID: "
+                setKeyValueToDB(question, broadcaster_id, 'configBotMenu')
+            elif main_user_input == "8": #Configure Bot's Client Secret
+                question = "Enter your Bots's Client Secret: "
+                setKeyValueToDB(question, bot_channel, 'configBotMenu')
+            elif main_user_input == "9": #Configure OAuth
+                PostOAuth()
+            elif main_user_input == "10": #Sets the API address
                 ConfigAPIAddress()
-            elif main_user_input == "6": #Test Bot Connection
+            elif main_user_input == "11": #Test Bot Connection
                 Test_API_Connection()
-            elif main_user_input == "7": #Go Back
+            elif main_user_input == "12": #Go Back
                 mainMenu()
             else:
                 continue
 
 
 def ConfigAPIAddress():
-    database = loadDB()
+    database = account_configuration.load_config()
     UserID = database[broadcaster_id]
-    db_management.apiAddress_to_db(APIkeyValue, UserID)
+    account_configuration.apiAddress_to_db(APIkeyValue, UserID)
     configBotMenu()
 
 def Test_API_Connection():
-    database = loadDB()
+    database = account_configuration.load_config()
     status = Test_API_Address(database[APIkeyValue])
     print(status)
     configBotMenu()
@@ -187,78 +223,47 @@ def Test_API_Address(addressRequest):
     print(status.status_code)
     configBotMenu()
 
-
-def OAuthMenu():
-    selection_menu(configOAuthMenuOptions)
-    if main_user_input == "1": #Set the Client ID
-        question = "Enter your Client ID: "
-        setKeyValueToDB(question, clientIDKey, 'OAuthMenu')
-    elif main_user_input == "2": #Set the Client Secret
-        question = "Enter your Client Secret: "
-        setKeyValueToDB(question, clientSecretKey, 'OAuthMenu')
-    elif main_user_input == "3": #Post Client ID and Client Secret
-        PostOAuth()
-    elif main_user_input == "4": #Go Back
-        configBotMenu()
-    else:
-        while True:
-            selection_menu_incorrect(configOAuthMenuOptions)
-            if main_user_input == "1": #Set the Client ID
-                question = "Enter your Client ID: "
-                setKeyValueToDB(question, clientIDKey, 'OAuthMenu')
-            elif main_user_input == "2": #Set the Client Secret
-                question = "Enter your Client ID: "
-                setKeyValueToDB(question, clientSecretKey, 'OAuthMenu')
-            elif main_user_input == "3": #Post Client ID and Client Secret
-                PostOAuth()
-            elif main_user_input == "4": #Go Back
-                configBotMenu()
-            else:
-                continue
-
 def setKeyValueToDB(question, key, lastMenu):
     value = input(question)
-    db_management.simplekeyValue_to_db(key, value)
+    account_configuration.simplekeyValue_to_db(key, value)
     if lastMenu == 'mainMenu':
         mainMenu()
     elif lastMenu =='configBotMenu':
         configBotMenu()
-    elif lastMenu == 'OAuthMenu':
-        OAuthMenu()
     else:
         mainMenu()
 
 def assignToken():
-    database = db_management.load_config()
+    database = account_configuration.load_config()
     jsonData = {
-    clientIDKey: database[clientIDKey],
-    clientSecretKey: database[clientSecretKey],
+    bot_channel_client_id: database[bot_channel_client_id],
+    bot_channel_client_id: database[bot_channel_client_id],
     'grant_type': 'client_credentials'
     }
-    #print(str("https://id.twitch.tv/oath2/token" + '&client_id=' + database[clientIDKey] + "&client_secret=" + database[clientSecretKey] + "&grant_type=client_credentials"))
+    #print(str("https://id.twitch.tv/oath2/token" + '&client_id=' + database[bot_channel_client_id] + "&client_secret=" + database[bot_channel_client_id] + "&grant_type=client_credentials"))
     response = requests.post(url, data=jsonData)
-    access_token = response.json()[tokenKey]
+    access_token = response.json()[access_Token]
     return access_token
 
 def PostOAuth():
-    database = db_management.load_config()
+    database = account_configuration.load_config()
     jsonData = {
-    clientIDKey: database[clientIDKey],
-    clientSecretKey: database[clientSecretKey],
+    bot_channel_client_id: database[bot_channel_client_id],
+    bot_channel_client_id: database[bot_channel_client_id],
     'grant_type': 'client_credentials'
     }
-    #print(str("https://id.twitch.tv/oath2/token" + '&client_id=' + database[clientIDKey] + "&client_secret=" + database[clientSecretKey] + "&grant_type=client_credentials"))
+    #print(str("https://id.twitch.tv/oath2/token" + '&client_id=' + database[bot_channel_client_id] + "&client_secret=" + database[bot_channel_client_id] + "&grant_type=client_credentials"))
     response = requests.post(url, data=jsonData)
-    access_token = response.json()[tokenKey]
-    expires_in = response.json()[expiresInKey]
-    token_type = response.json()[tokenTypeKey]
+    access_token = response.json()[access_Token]
+    expires = response.json()[expires_in]
+    type = response.json()[token_type]
     print("Your access token is: " + access_token)
-    db_management.simplekeyValue_to_db(tokenKey, access_token)
+    account_configuration.simplekeyValue_to_db(access_Token, access_token)
     print("Your access token expires in: " + str(expires_in))
-    db_management.simplekeyValue_to_db(expiresInKey, expires_in)
+    account_configuration.simplekeyValue_to_db(expires_in, expires)
     print("Your token type is: " + token_type)
-    db_management.simplekeyValue_to_db(tokenTypeKey, token_type)
-    OAuthMenu()
+    account_configuration.simplekeyValue_to_db(token_type, type)
+    configBotMenu()
 
 def exit_application():
     print("End of Script")
