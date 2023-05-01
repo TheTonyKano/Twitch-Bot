@@ -134,31 +134,32 @@ def StartBot():
         mainMenu()
 
 def configBotMenu():
+    lastMenu = "configBotMenu"
     selection_menu(configBotMenuOptions)
     if main_user_input == "1": #Configure Broadcaster's Channel
         question = "Enter your Broadcaster's Channel name: "
-        setKeyValueToDB(question, channel, "configBotMenu")
+        setKeyValueToDB(question, channel, lastMenu)
     elif main_user_input == "2": #Configure Broadcaster ID
         question = "Enter your Broadcaster ID: "
-        setKeyValueToDB(question, broadcaster_id, 'configBotMenu')
+        setKeyValueToDB(question, broadcaster_id, lastMenu)
     elif main_user_input == "3": #Configure Broadcaster's Client ID 
         question = "Enter your Broadcaster's Client ID: "
-        setKeyValueToDB(question, bot_channel, 'configBotMenu')
+        setKeyValueToDB(question, bot_channel, lastMenu)
     elif main_user_input == "4": #Configure Broadcaster's Client Secret
         question = "Enter your Broadcaster's Client Secret: "
-        setKeyValueToDB(question, channel, "configBotMenu")
+        setKeyValueToDB(question, channel, lastMenu)
     elif main_user_input == "5": #Configure Bot's Channel
         question = "Enter your Bot's Channel name: "
-        setKeyValueToDB(question, channel, "configBotMenu")
+        setKeyValueToDB(question, channel, lastMenu)
     elif main_user_input == "6": #Configure Bot's ID
         question = "Enter your Bot's ID: "
-        setKeyValueToDB(question, channel, "configBotMenu")
+        setKeyValueToDB(question, channel, lastMenu)
     elif main_user_input == "7": #Configure Bot's Client ID
         question = "Enter your Bot's Client ID: "
-        setKeyValueToDB(question, broadcaster_id, 'configBotMenu')
+        setKeyValueToDB(question, broadcaster_id, lastMenu)
     elif main_user_input == "8": #Configure Bot's Client Secret
         question = "Enter your Bots's Client Secret: "
-        setKeyValueToDB(question, bot_channel, 'configBotMenu')
+        setKeyValueToDB(question, bot_channel, lastMenu)
     elif main_user_input == "9": #Configure OAuth
         PostOAuth()
     elif main_user_input == "10": #Sets the API address
@@ -172,28 +173,28 @@ def configBotMenu():
             selection_menu_incorrect(configBotMenuOptions)
             if main_user_input == "1": #Configure Broadcaster's Channel
                 question = "Enter your Broadcaster's Channel name: "
-                setKeyValueToDB(question, channel, "configBotMenu")
+                setKeyValueToDB(question, channel, lastMenu)
             elif main_user_input == "2": #Configure Broadcaster ID
                 question = "Enter your Broadcaster ID: "
-                setKeyValueToDB(question, broadcaster_id, 'configBotMenu')
+                setKeyValueToDB(question, broadcaster_id, lastMenu)
             elif main_user_input == "3": #Configure Broadcaster's Client ID 
                 question = "Enter your Broadcaster's Client ID: "
-                setKeyValueToDB(question, bot_channel, 'configBotMenu')
+                setKeyValueToDB(question, bot_channel, lastMenu)
             elif main_user_input == "4": #Configure Broadcaster's Client Secret
                 question = "Enter your Broadcaster's Client Secret: "
-                setKeyValueToDB(question, channel, "configBotMenu")
+                setKeyValueToDB(question, channel, lastMenu)
             elif main_user_input == "5": #Configure Bot's Channel
                 question = "Enter your Bot's Channel name: "
-                setKeyValueToDB(question, channel, "configBotMenu")
+                setKeyValueToDB(question, channel, lastMenu)
             elif main_user_input == "6": #Configure Bot's ID
                 question = "Enter your Bot's ID: "
-                setKeyValueToDB(question, channel, "configBotMenu")
+                setKeyValueToDB(question, channel, lastMenu)
             elif main_user_input == "7": #Configure Bot's Client ID
                 question = "Enter your Bot's Client ID: "
-                setKeyValueToDB(question, broadcaster_id, 'configBotMenu')
+                setKeyValueToDB(question, broadcaster_id, lastMenu)
             elif main_user_input == "8": #Configure Bot's Client Secret
                 question = "Enter your Bots's Client Secret: "
-                setKeyValueToDB(question, bot_channel, 'configBotMenu')
+                setKeyValueToDB(question, bot_channel, lastMenu)
             elif main_user_input == "9": #Configure OAuth
                 PostOAuth()
             elif main_user_input == "10": #Sets the API address
@@ -228,7 +229,7 @@ def setKeyValueToDB(question, key, lastMenu):
     account_configuration.simplekeyValue_to_db(key, value)
     if lastMenu == 'mainMenu':
         mainMenu()
-    elif lastMenu =='configBotMenu':
+    elif lastMenu == "configBotMenu":
         configBotMenu()
     else:
         mainMenu()
