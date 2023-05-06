@@ -21,7 +21,7 @@ bot_channel = 'bot_channel'
 bot_channel_ID = 'bot_channel_ID'
 bot_channel_client_id = 'bot_channel_client_id'
 bot_channel_client_secret = 'bot_channel_client_secret'
-access_Token = 'access_Token'
+access_Token = 'access_token'
 token_type = 'token_type'
 expires_in = 'expires_in'
 
@@ -141,25 +141,25 @@ def configBotMenu():
         setKeyValueToDB(question, channel, lastMenu)
     elif main_user_input == "2": #Configure Broadcaster ID
         question = "Enter your Broadcaster ID: "
-        setKeyValueToDB(question, broadcaster_id, lastMenu)
+        setKeyValueToDB(question, channel_ID, lastMenu)
     elif main_user_input == "3": #Configure Broadcaster's Client ID 
         question = "Enter your Broadcaster's Client ID: "
-        setKeyValueToDB(question, bot_channel, lastMenu)
+        setKeyValueToDB(question, channel_client_id, lastMenu)
     elif main_user_input == "4": #Configure Broadcaster's Client Secret
         question = "Enter your Broadcaster's Client Secret: "
-        setKeyValueToDB(question, channel, lastMenu)
+        setKeyValueToDB(question, channel_client_secret, lastMenu)
     elif main_user_input == "5": #Configure Bot's Channel
         question = "Enter your Bot's Channel name: "
-        setKeyValueToDB(question, channel, lastMenu)
+        setKeyValueToDB(question, bot_channel, lastMenu)
     elif main_user_input == "6": #Configure Bot's ID
         question = "Enter your Bot's ID: "
-        setKeyValueToDB(question, channel, lastMenu)
+        setKeyValueToDB(question, bot_channel_ID, lastMenu)
     elif main_user_input == "7": #Configure Bot's Client ID
         question = "Enter your Bot's Client ID: "
-        setKeyValueToDB(question, broadcaster_id, lastMenu)
+        setKeyValueToDB(question, bot_channel_client_id, lastMenu)
     elif main_user_input == "8": #Configure Bot's Client Secret
         question = "Enter your Bots's Client Secret: "
-        setKeyValueToDB(question, bot_channel, lastMenu)
+        setKeyValueToDB(question, bot_channel_client_secret, lastMenu)
     elif main_user_input == "9": #Configure OAuth
         PostOAuth()
     elif main_user_input == "10": #Sets the API address
@@ -176,25 +176,25 @@ def configBotMenu():
                 setKeyValueToDB(question, channel, lastMenu)
             elif main_user_input == "2": #Configure Broadcaster ID
                 question = "Enter your Broadcaster ID: "
-                setKeyValueToDB(question, broadcaster_id, lastMenu)
+                setKeyValueToDB(question, channel_ID, lastMenu)
             elif main_user_input == "3": #Configure Broadcaster's Client ID 
                 question = "Enter your Broadcaster's Client ID: "
-                setKeyValueToDB(question, bot_channel, lastMenu)
+                setKeyValueToDB(question, channel_client_id, lastMenu)
             elif main_user_input == "4": #Configure Broadcaster's Client Secret
                 question = "Enter your Broadcaster's Client Secret: "
-                setKeyValueToDB(question, channel, lastMenu)
+                setKeyValueToDB(question, channel_client_secret, lastMenu)
             elif main_user_input == "5": #Configure Bot's Channel
                 question = "Enter your Bot's Channel name: "
-                setKeyValueToDB(question, channel, lastMenu)
+                setKeyValueToDB(question, bot_channel, lastMenu)
             elif main_user_input == "6": #Configure Bot's ID
                 question = "Enter your Bot's ID: "
-                setKeyValueToDB(question, channel, lastMenu)
+                setKeyValueToDB(question, bot_channel_ID, lastMenu)
             elif main_user_input == "7": #Configure Bot's Client ID
                 question = "Enter your Bot's Client ID: "
-                setKeyValueToDB(question, broadcaster_id, lastMenu)
+                setKeyValueToDB(question, bot_channel_client_id, lastMenu)
             elif main_user_input == "8": #Configure Bot's Client Secret
                 question = "Enter your Bots's Client Secret: "
-                setKeyValueToDB(question, bot_channel, lastMenu)
+                setKeyValueToDB(question, bot_channel_client_secret, lastMenu)
             elif main_user_input == "9": #Configure OAuth
                 PostOAuth()
             elif main_user_input == "10": #Sets the API address
@@ -209,7 +209,7 @@ def configBotMenu():
 
 def ConfigAPIAddress():
     database = account_configuration.load_config()
-    UserID = database[broadcaster_id]
+    UserID = database[channel_ID]
     account_configuration.apiAddress_to_db(APIkeyValue, UserID)
     configBotMenu()
 
@@ -238,7 +238,7 @@ def assignToken():
     database = account_configuration.load_config()
     jsonData = {
     bot_channel_client_id: database[bot_channel_client_id],
-    bot_channel_client_id: database[bot_channel_client_id],
+    bot_channel_client_secret: database[bot_channel_client_secret],
     'grant_type': 'client_credentials'
     }
     #print(str("https://id.twitch.tv/oath2/token" + '&client_id=' + database[bot_channel_client_id] + "&client_secret=" + database[bot_channel_client_id] + "&grant_type=client_credentials"))
@@ -248,18 +248,21 @@ def assignToken():
 
 def PostOAuth():
     database = account_configuration.load_config()
+    client_id = database[bot_channel_client_id]
+    client_secret = database[bot_channel_client_secret]
     jsonData = {
-    bot_channel_client_id: database[bot_channel_client_id],
-    bot_channel_client_id: database[bot_channel_client_id],
+    'client_id': client_id,
+    'client_secret': client_secret,
     'grant_type': 'client_credentials'
     }
-    #print(str("https://id.twitch.tv/oath2/token" + '&client_id=' + database[bot_channel_client_id] + "&client_secret=" + database[bot_channel_client_id] + "&grant_type=client_credentials"))
+    #urlOAuth = str("https://id.twitch.tv/oath2/token" + '&client_id=' + database[bot_channel_client_id] + "&client_secret=" + database[bot_channel_client_secret] + "&grant_type=client_credentials")
     response = requests.post(url, data=jsonData)
-    access_token = response.json()[access_Token]
+    print(response.json())
+    token = response.json()[access_Token]
     expires = response.json()[expires_in]
     type = response.json()[token_type]
-    print("Your access token is: " + access_token)
-    account_configuration.simplekeyValue_to_db(access_Token, access_token)
+    print("Your access token is: " + token)
+    account_configuration.simplekeyValue_to_db(access_Token, token)
     print("Your access token expires in: " + str(expires_in))
     account_configuration.simplekeyValue_to_db(expires_in, expires)
     print("Your token type is: " + token_type)
